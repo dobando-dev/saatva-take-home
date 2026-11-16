@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useCart } from '@/components/cart/CartProvider'
 import { MattressToggle } from '@/components/MattressToggle'
 import { Price } from '@/components/Price'
 import { Rating } from '@/components/Rating'
@@ -9,6 +10,7 @@ import type { Product } from '@/lib/types'
 export function ProductConfigurator({ products }: { products: Product[] }) {
   const [selectedId, setSelectedId] = useState(products[0].id)
   const product = products.find((p) => p.id === selectedId) ?? products[0]
+  const { add, pending, error } = useCart()
 
   return (
     <section className="configurator">
@@ -46,9 +48,19 @@ export function ProductConfigurator({ products }: { products: Product[] }) {
             dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
           />
         )}
-        <button type="button" className="button button--primary">
-          Add to Cart
+        <button
+          type="button"
+          className="button button--primary"
+          disabled={pending}
+          onClick={() => add(product.id)}
+        >
+          {pending ? 'Adding…' : 'Add to Cart'}
         </button>
+        {error && (
+          <p className="configurator__error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     </section>
   )

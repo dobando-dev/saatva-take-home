@@ -25,3 +25,22 @@ export interface Product {
 export interface ProductsResponse {
   products: Product[]
 }
+
+export const MAX_CART_QUANTITY = 10
+
+export interface CartItem {
+  productId: string
+  name: string
+  image: ProductImage
+  unitPriceCents: number
+  compareAtPriceCents: number | null
+  quantity: number
+  lineTotalCents: number
+}
+
+export interface Cart {
+  items: CartItem[]
+  itemCount: number
+  totalCents: number
+  currency: string
+}
