@@ -6,6 +6,7 @@
   --color-accent: #d4aa79;
   --color-border: #e2ddd6;
   --color-muted-fill: #a8a29a;
+  --color-error: #b3261e;
 }
 
 *,
@@ -58,6 +59,7 @@ img {
   font-size: 2rem;
   line-height: 1;
   text-decoration: none;
+  text-transform: lowercase;
 }
 
 .site-header__cart {
@@ -192,7 +194,7 @@ img {
 
 .configurator__error {
   margin: 0.75rem 0 0;
-  color: #b3261e;
+  color: var(--color-error);
   font-size: 0.875rem;
 }
 

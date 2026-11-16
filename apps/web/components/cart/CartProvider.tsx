@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { apiGet, apiSend } from '@/lib/api'
 import type { Cart } from '@/lib/types'
 
@@ -28,8 +29,14 @@ export function CartProvider({
   const [cart, setCart] = useState<Cart | null>(initialCart)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
   // State updates late, so two fast clicks could both pass a state check (K-11).
   const inFlight = useRef(false)
+
+  // `error` is provider-global; don't let one page's failure show on the next page.
+  useEffect(() => {
+    setError(null)
+  }, [pathname])
 
   const run = useCallback(async (request: () => Promise<Cart>) => {
     if (inFlight.current) return

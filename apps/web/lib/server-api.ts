@@ -7,6 +7,8 @@ export async function serverGet<T>(path: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     headers: { Cookie: (await cookies()).toString() },
     cache: 'no-store',
+    // A hung BFF must not hang every page render; callers degrade on failure.
+    signal: AbortSignal.timeout(3000),
   })
   if (!res.ok) {
     throw new Error(`GET ${path} failed (${res.status})`)

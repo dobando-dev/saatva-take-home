@@ -6,7 +6,7 @@ export function Header() {
     <header className="site-header">
       <div className="site-header__inner">
         <Link href="/" className="site-header__logo">
-          saatva
+          Saatva
         </Link>
         <CartLink />
       </div>
