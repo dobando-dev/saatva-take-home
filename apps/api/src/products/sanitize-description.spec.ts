@@ -32,6 +32,19 @@ describe('sanitizeDescription', () => {
     )
   })
 
+  it('C-9 drops script inside svg', () => {
+    expect(sanitizeDescription('<svg><script>alert(1)</script></svg><p>ok</p>')).toBe('<p>ok</p>')
+  })
+
+  it('C-9 drops style blocks and their content', () => {
+    expect(sanitizeDescription('<style>p{color:red}</style><p>ok</p>')).toBe('<p>ok</p>')
+  })
+
+  it('C-9 keeps entity-encoded markup escaped', () => {
+    const html = '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>'
+    expect(sanitizeDescription(html)).toBe(html)
+  })
+
   it.each([['<script>x</script>'], ['']])('C-9 returns null when nothing is left (%j)', (html) => {
     expect(sanitizeDescription(html)).toBeNull()
   })

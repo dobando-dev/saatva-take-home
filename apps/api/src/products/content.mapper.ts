@@ -3,7 +3,7 @@ import { sanitizeDescription } from './sanitize-description'
 import { UpstreamDataError, type ProductContent, type ProductRating } from './product.types'
 
 const contentEntrySchema = z.object({
-  handle: z.string(),
+  handle: z.string().trim().min(1),
   headline: z.unknown().optional(),
   descriptionHtml: z.unknown().optional(),
   reviews: z.unknown().optional(),
@@ -57,7 +57,7 @@ function parseRating(value: unknown): ProductRating | null {
 /**
  * Validates the content body and maps each entry to internal `ProductContent`, keyed by
  * normalized handle. This is the content-v2 swap point (D3): a 10-point source would be divided
- * by 2 here (D4). A non-array body throws; an entry without a string handle is skipped with a
+ * by 2 here (D4). A non-array body throws; an entry without a non-blank string handle is skipped with a
  * warning; an invalid field becomes null without dropping the entry. The first duplicate wins.
  */
 export function mapContent(
@@ -73,7 +73,7 @@ export function mapContent(
   raw.forEach((entry: unknown, index) => {
     const parsed = contentEntrySchema.safeParse(entry)
     if (!parsed.success) {
-      warn(`Skipping content entry at index ${index}: missing handle`)
+      warn(`Skipping content entry at index ${index}: missing or blank handle`)
       return
     }
     const item = parsed.data

@@ -91,6 +91,13 @@ describe('mapContent', () => {
     expect(map.get('zenhaven')!.headline).toBe('First')
   })
 
+  it('skips entries with a blank handle', () => {
+    const warn = vi.fn()
+    const map = mapContent([entry({ handle: '' }), entry({ handle: '   ' }), entry()], warn)
+    expect([...map.keys()]).toEqual(['x'])
+    expect(warn).toHaveBeenCalledTimes(2)
+  })
+
   it('skips entries without a string handle', () => {
     const warn = vi.fn()
     const map = mapContent(
