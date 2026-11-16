@@ -66,6 +66,7 @@ describe('cart API', () => {
     expect(header).toContain('HttpOnly')
     expect(header).toContain('SameSite=Lax')
     expect(header).toContain('Path=/')
+    expect(header).toContain('Max-Age=2592000')
   })
 
   it('K-3 cookie round trip', async () => {
@@ -180,6 +181,7 @@ describe('cart API', () => {
           .post('/api/cart/items')
           .send(body)
         expect(res.status).toBe(400)
+        expect(setCookies(res)).toEqual([])
       },
     )
   })
@@ -252,6 +254,27 @@ describe('cart API', () => {
         .post('/api/cart/items')
         .set('Cookie', cookieHeader([['LNL-Q', 1]]))
         .send({ productId: 'LNL-Q' })
+      expect(res.status).toBe(503)
+      expect(res.body).toEqual(unavailable)
+      expect(setCookies(res)).toEqual([])
+    })
+
+    it('PUT → 503 and no cookie', async () => {
+      const http = await server({ getCatalogProducts: failing })
+      const res = await request(http)
+        .put('/api/cart/items/LNL-Q')
+        .set('Cookie', cookieHeader([['LNL-Q', 1]]))
+        .send({ quantity: 2 })
+      expect(res.status).toBe(503)
+      expect(res.body).toEqual(unavailable)
+      expect(setCookies(res)).toEqual([])
+    })
+
+    it('DELETE → 503 and no cookie', async () => {
+      const http = await server({ getCatalogProducts: failing })
+      const res = await request(http)
+        .delete('/api/cart/items/LNL-Q')
+        .set('Cookie', cookieHeader([['LNL-Q', 1]]))
       expect(res.status).toBe(503)
       expect(res.body).toEqual(unavailable)
       expect(setCookies(res)).toEqual([])

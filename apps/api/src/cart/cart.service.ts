@@ -42,18 +42,22 @@ export function removeLine(lines: CartLine[], productId: string): CartLine[] {
   return lines.filter(([id]) => id !== productId)
 }
 
-/** Prices come only from the catalog; lines for products not in it are dropped. */
 export type CartResult = { cart: Cart; lines: CartLine[] }
 
+/** Drops lines whose product is not in the catalog. */
+function reconcile(lines: CartLine[], catalog: Catalog): CartLine[] {
+  const ids = new Set(catalog.items.map((item) => item.id))
+  return lines.filter(([id]) => ids.has(id))
+}
+
+/** Prices come only from the catalog; lines for products not in it are dropped. */
 export function priceCart(lines: CartLine[], catalog: Catalog): CartResult {
   const byId = new Map(catalog.items.map((item) => [item.id, item]))
-  const keptLines: CartLine[] = []
+  const keptLines = reconcile(lines, catalog)
   const items: CartItem[] = []
-  for (const line of lines) {
-    const [productId, quantity] = line
+  for (const [productId, quantity] of keptLines) {
     const product = byId.get(productId)
     if (!product) continue
-    keptLines.push(line)
     items.push({
       productId,
       name: product.name,
@@ -116,10 +120,4 @@ export class CartService {
       throw error
     }
   }
-}
-
-/** Drops lines whose product is no longer in the catalog. */
-function reconcile(lines: CartLine[], catalog: Catalog): CartLine[] {
-  const ids = new Set(catalog.items.map((item) => item.id))
-  return lines.filter(([id]) => ids.has(id))
 }
