@@ -9,3 +9,6 @@ next-env.d.ts
 
 # Interviewer-only material. Never commit or share with candidates.
 .interviewer/
+
+# Personal Claude Code overrides
+.claude/settings.local.json
