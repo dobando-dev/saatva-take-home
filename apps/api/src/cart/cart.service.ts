@@ -2,7 +2,7 @@ import type { Catalog } from '../products/product.types'
 import { MAX_QUANTITY, type Cart, type CartItem, type CartLine } from './cart.types'
 
 function clamp(quantity: number): number {
-  return Math.min(MAX_QUANTITY, quantity)
+  return Math.min(MAX_QUANTITY, Math.max(1, quantity))
 }
 
 export function addLine(lines: CartLine[], productId: string, quantity: number): CartLine[] {

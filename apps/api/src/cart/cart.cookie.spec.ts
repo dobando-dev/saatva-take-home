@@ -55,6 +55,28 @@ describe('cart cookie codec', () => {
     expect(decodeCart(raw)).toEqual([])
   })
 
+  it.each([[{ a: 1 }], [42], [null]])('non-string raw value %j decodes to an empty cart', (raw) => {
+    expect(decodeCart(raw)).toEqual([])
+  })
+
+  it('decodes a valid raw string of exactly 4096 chars (the guard is > 4096)', () => {
+    const head = '[["LNL-Q",1]'
+    const raw = head + ' '.repeat(4096 - head.length - 1) + ']'
+    expect(raw).toHaveLength(4096)
+    expect(decodeCart(raw)).toEqual([['LNL-Q', 1]])
+  })
+
+  it.each([
+    ['1e400 (Infinity)', '[["LNL-Q",1e400]]', []],
+    ['1e21 (huge integer)', '[["LNL-Q",1e21]]', [['LNL-Q', 10]]],
+    ['a negative quantity', '[["LNL-Q",-5]]', [['LNL-Q', 1]]],
+    ['a __proto__ product ID', '[["__proto__",1]]', [['__proto__', 1]]],
+    ['a null entry', '[null]', []],
+    ['a boolean quantity', '[["LNL-Q",true]]', []],
+  ])('hostile value decodes predictably: %s', (_name, raw, expected) => {
+    expect(decodeCart(raw)).toEqual(expected)
+  })
+
   it('cookie options', () => {
     expect(cartCookieOptions()).toEqual({
       httpOnly: true,

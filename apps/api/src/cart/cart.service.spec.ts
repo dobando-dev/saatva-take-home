@@ -34,6 +34,10 @@ describe('cart operations', () => {
     ])
   })
 
+  it('addLine clamps a zero quantity on a new line up to 1', () => {
+    expect(addLine([], 'LNL-Q', 0)).toEqual([['LNL-Q', 1]])
+  })
+
   it('setLineQuantity sets the absolute quantity', () => {
     const lines: CartLine[] = [['LNL-Q', 2]]
     expect(setLineQuantity(lines, 'LNL-Q', 7)).toEqual([['LNL-Q', 7]])
