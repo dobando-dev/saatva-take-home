@@ -97,7 +97,7 @@ Try the failure modes: `UPSTREAM_FAIL_SERVICE=content npm run dev` (products sti
 
 - **Cart in a BFF-owned cookie (D1).** Survives refreshes and API restarts with no storage code, and the server can read it. The cookie never holds a price, so tampering can't change what anyone pays. It isn't signed, because the server trusts nothing in it beyond IDs and quantities (see "With more time").
 - **zod at the BFF boundary (D2).** The provider types don't match the data, so upstream responses and request bodies are validated at runtime.
-- **One content adapter (D3, D4).** A content API v2 is coming (renamed fields, 10-point ratings); `content.mapper.ts` is the only file that would change, and the contract always uses a 5-point scale.
+- **One content adapter (D3, D4).** A content API v2 is coming (renamed fields, 10-point ratings; v1 is turned off December 15). The mapping change is confined to `content.mapper.ts`, plus the endpoint path (`/content/v2/products`) in `UpstreamClient`, and the contract always uses a 5-point scale.
 - **Sale pricing (D6).** The data has Loom & Leaf on sale ($1,199 vs $1,299), so the contract has `priceCents` and `compareAtPriceCents`, even though the mock shows one price.
 - **Description HTML is sanitized (D7)** with a strict allowlist and no attributes, even though the provider calls it trusted. Third-party HTML rendered raw is stored XSS waiting to happen.
 - **No upstream names past the BFF (D11).** Fields like `productHandle`, `imageKey` or `reviews` never reach the web app.

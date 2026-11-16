@@ -1,12 +1,15 @@
+import { unstable_rethrow } from 'next/navigation'
 import { ProductConfigurator } from '@/components/ProductConfigurator'
-import { apiGet } from '@/lib/api'
+import { serverGet } from '@/lib/server-api'
 import type { Product, ProductsResponse } from '@/lib/types'
 
 async function loadProducts(): Promise<Product[] | null> {
   try {
-    const { products } = await apiGet<ProductsResponse>('/api/products')
+    const { products } = await serverGet<ProductsResponse>('/api/products')
     return products
   } catch (error) {
+    // Let Next's own control-flow errors (e.g. dynamic-rendering signals) through.
+    unstable_rethrow(error)
     console.error('Failed to load products', error)
     return null
   }

@@ -75,7 +75,7 @@ describe('mapCatalog', () => {
     expect(result.items[0].priceCents).toBe(99900)
   })
 
-  it('Review focus: duplicate SKU keeps the first', () => {
+  it('duplicate SKU keeps the first', () => {
     const warn = vi.fn()
     const result = mapCatalog(
       catalogWith(
@@ -88,15 +88,12 @@ describe('mapCatalog', () => {
     expect(warn).toHaveBeenCalled()
   })
 
-  it.each(['../secret', 'a.jpg?x'])(
-    'Review focus: unsafe imageKey %j drops the product',
-    (imageKey) => {
-      const warn = vi.fn()
-      const result = mapCatalog(catalogWith(item({ imageKey })), warn)
-      expect(result.items).toEqual([])
-      expect(warn).toHaveBeenCalled()
-    },
-  )
+  it.each(['../secret', 'a.jpg?x'])('unsafe imageKey %j drops the product', (imageKey) => {
+    const warn = vi.fn()
+    const result = mapCatalog(catalogWith(item({ imageKey })), warn)
+    expect(result.items).toEqual([])
+    expect(warn).toHaveBeenCalled()
+  })
 
   it.each([[{}], [[]], [null], [{ meta: { currency: 'usd' }, data: [] }]])(
     'throws UpstreamDataError when the body is not a catalog (%j)',

@@ -294,4 +294,43 @@ describe('cart API', () => {
     expect(res.status).toBe(200)
     expect(res.body.items[0]).toMatchObject({ productId: 'LNL-Q', quantity: 1 })
   })
+
+  describe('JSON-only mutations (cross-site form POST must not replace the cart)', () => {
+    it('form-encoded POST → 415 with no set-cookie', async () => {
+      const http = await server()
+      const res = await request(http)
+        .post('/api/cart/items')
+        .type('form')
+        .send({ productId: 'LNL-Q', quantity: 1 })
+      expect(res.status).toBe(415)
+      expect(setCookies(res)).toEqual([])
+    })
+
+    it('text/plain PUT → 415 with no set-cookie and the cart untouched', async () => {
+      const http = await server()
+      const res = await request(http)
+        .put('/api/cart/items/LNL-Q')
+        .set('Cookie', cookieHeader([['LNL-Q', 1]]))
+        .set('Content-Type', 'text/plain')
+        .send('{"quantity":5}')
+      expect(res.status).toBe(415)
+      expect(setCookies(res)).toEqual([])
+    })
+
+    it('POST with no content type → 415', async () => {
+      const http = await server()
+      const res = await request(http).post('/api/cart/items')
+      expect(res.status).toBe(415)
+      expect(setCookies(res)).toEqual([])
+    })
+
+    it('JSON with a charset parameter is still accepted', async () => {
+      const http = await server()
+      const res = await request(http)
+        .post('/api/cart/items')
+        .set('Content-Type', 'application/json; charset=utf-8')
+        .send(JSON.stringify({ productId: 'LNL-Q' }))
+      expect(res.status).toBe(200)
+    })
+  })
 })

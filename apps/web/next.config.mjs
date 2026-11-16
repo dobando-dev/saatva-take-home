@@ -1,3 +1,4 @@
+// Same default as lib/server-api.ts; kept separate because this file is loaded outside the app bundle.
 const API_URL = process.env.API_URL ?? 'http://localhost:4000'
 
 /** @type {import('next').NextConfig} */

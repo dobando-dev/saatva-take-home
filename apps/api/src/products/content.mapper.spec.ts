@@ -49,7 +49,7 @@ describe('mapContent', () => {
     [{ average: '', count: '' }],
     [{ average: null, count: null }],
     [{ average: ' ', count: '10' }],
-  ])('Review focus: blank or null rating values give null, not 0 (%j)', (reviews) => {
+  ])('blank or null rating values give null, not 0 (%j)', (reviews) => {
     expect(ratingOf(reviews)).toBeNull()
   })
 

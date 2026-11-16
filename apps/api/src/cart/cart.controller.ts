@@ -1,6 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Req, Res } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common'
 import type { Request, Response } from 'express'
 import { CART_COOKIE, cartCookieOptions, decodeCart, encodeCart } from './cart.cookie'
+import { JsonOnlyGuard } from './json-only.guard'
 import { addItemSchema, parseBody, setQuantitySchema } from './cart.schemas'
 import { CartService, type CartResult } from './cart.service'
 import type { Cart, CartLine } from './cart.types'
@@ -20,6 +33,7 @@ export class CartController {
   }
 
   @Post('items')
+  @UseGuards(JsonOnlyGuard)
   @HttpCode(200)
   async add(
     @Req() req: Request,
@@ -33,6 +47,7 @@ export class CartController {
   }
 
   @Put('items/:productId')
+  @UseGuards(JsonOnlyGuard)
   async setQuantity(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,

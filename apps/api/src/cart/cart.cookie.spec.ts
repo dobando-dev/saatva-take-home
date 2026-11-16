@@ -51,7 +51,7 @@ describe('cart cookie codec', () => {
     ['an oversized raw value', `[["LNL-Q",1]${' '.repeat(4100)}]`],
     ['an empty product ID', '[["",1]]'],
     ['a 65-char product ID', JSON.stringify([['x'.repeat(65), 1]])],
-  ])('Review focus: hostile values decode to an empty cart: %s', (_name, raw) => {
+  ])('hostile values decode to an empty cart: %s', (_name, raw) => {
     expect(decodeCart(raw)).toEqual([])
   })
 
