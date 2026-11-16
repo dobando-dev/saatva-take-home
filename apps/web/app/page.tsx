@@ -6,7 +6,8 @@ async function loadProducts(): Promise<Product[] | null> {
   try {
     const { products } = await apiGet<ProductsResponse>('/api/products')
     return products
-  } catch {
+  } catch (error) {
+    console.error('Failed to load products', error)
     return null
   }
 }

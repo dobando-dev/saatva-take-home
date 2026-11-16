@@ -5,6 +5,7 @@
   --color-surface: #f7f5f2;
   --color-accent: #d4aa79;
   --color-border: #e2ddd6;
+  --color-muted-fill: #a8a29a;
 }
 
 *,
@@ -72,7 +73,7 @@ img {
 }
 
 .page-message {
-  max-width: 1110px;
+  max-width: calc(1110px + 3rem);
   margin: 3rem auto;
   padding: 0 1.5rem;
   text-align: center;
@@ -101,7 +102,7 @@ img {
   display: grid;
   grid-template-columns: minmax(0, 634fr) minmax(0, 444fr);
   gap: 2rem;
-  max-width: 1110px;
+  max-width: calc(1110px + 3rem);
   margin: 0 auto;
   padding: 1.25rem 1.5rem 3rem;
   align-items: start;
@@ -177,7 +178,7 @@ img {
 }
 
 .toggle__option--selected {
-  background: #a8a29a;
+  background: var(--color-muted-fill);
   color: var(--color-bg);
 }
 

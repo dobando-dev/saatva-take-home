@@ -9,7 +9,7 @@ export function Rating({ rating }: { rating: ProductRating | null }) {
   const { average, count } = rating
   const fill = ((Math.round(average * 2) / 2 / 5) * 100).toFixed(0)
   const average1 = average.toFixed(1)
-  const reviews = `${formatCount(count)} reviews`
+  const reviews = `${formatCount(count)} ${count === 1 ? 'review' : 'reviews'}`
 
   return (
     <div className="rating" role="img" aria-label={`Rated ${average1} out of 5, ${reviews}`}>

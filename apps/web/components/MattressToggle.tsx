@@ -19,6 +19,7 @@ export function MattressToggle({ options, value, onChange, labelledBy }: Mattres
   const buttons = useRef<(HTMLButtonElement | null)[]>([])
 
   function handleKeyDown(event: KeyboardEvent, index: number) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return
     let next: number
     if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       next = (index - 1 + options.length) % options.length
