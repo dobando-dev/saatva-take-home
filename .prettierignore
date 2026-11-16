@@ -1,0 +1,8 @@
+# Third-party mock: never reformat (see README).
+services/upstream/
+
+# Provided files we don't want to churn with formatting-only diffs.
+README.md
+apps/web/tsconfig.json
+
+package-lock.json
