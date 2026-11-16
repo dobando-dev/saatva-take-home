@@ -18,6 +18,8 @@ export async function createTestApp(upstream: UpstreamStub): Promise<INestApplic
   // Pass the adapter explicitly: platform-express is installed under apps/api/node_modules, so
   // @nestjs/testing (hoisted to the root) cannot resolve it on its own.
   const app = configureApp(moduleRef.createNestApplication(new ExpressAdapter()))
+  // Keep failure-mode tests quiet; the service still calls the logger.
+  app.useLogger(false)
   await app.init()
   return app
 }
