@@ -71,10 +71,12 @@ describe('GET /api/products', () => {
     expect(productById(res.body, 'LNL-Q')?.rating).toEqual({ average: 4, count: 1876 })
   })
 
-  it('C-5 orphan content and discontinued items do not appear', async () => {
+  it('C-5 orphan content does not appear', async () => {
     const res = await get()
     expect(res.text).not.toContain('Designed for growing kids')
+  })
 
+  it('C-5 discontinued items do not appear', async () => {
     const catalog = loadUpstreamData('catalog-products.json') as { data: object[] }
     const withDiscontinued = {
       ...catalog,
@@ -91,10 +93,13 @@ describe('GET /api/products', () => {
         },
       ],
     }
-    const res2 = await get({ getCatalogProducts: async () => withDiscontinued })
-    expect(res2.status).toBe(200)
-    expect(res2.body.products.map((p: ProductBody) => p.id)).not.toContain('OLD-Q')
-    expect(res2.body.products).toHaveLength(3)
+    const res = await get({ getCatalogProducts: async () => withDiscontinued })
+    expect(res.status).toBe(200)
+    expect(res.body.products.map((p: ProductBody) => p.id)).toEqual([
+      'SAT-CLASSIC-Q',
+      'LNL-Q',
+      'ZEN-Q',
+    ])
   })
 
   it.each([

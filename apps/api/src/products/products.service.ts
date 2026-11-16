@@ -16,49 +16,54 @@ export class ProductsService {
 
   constructor(private readonly upstream: UpstreamClient) {}
 
-  /** Active, validated catalog items. Throws `CatalogUnavailableError` if the catalog can't be had. */
-  async getCatalog(): Promise<Catalog> {
-    const [result] = await Promise.allSettled([this.upstream.getCatalogProducts()])
-    return this.toCatalog(result)
+  /**
+   * Active, validated catalog items. Logs and throws `CatalogUnavailableError` if the catalog
+   * can't be had, so callers don't need to log it again.
+   */
+  getCatalog(): Promise<Catalog> {
+    return this.loadCatalog(this.upstream.getCatalogProducts())
   }
 
   async getProducts(): Promise<ProductsResponse> {
-    const [catalogResult, contentResult] = await Promise.allSettled([
-      this.upstream.getCatalogProducts(),
-      this.upstream.getContentProducts(),
-    ])
+    // Both fetches start together; loadContent never rejects, so a catalog failure leaves nothing
+    // unhandled.
+    const catalogPromise = this.loadCatalog(this.upstream.getCatalogProducts())
+    const contentPromise = this.loadContent(this.upstream.getContentProducts())
 
     let catalog: Catalog
     try {
-      catalog = this.toCatalog(catalogResult)
+      catalog = await catalogPromise
     } catch (error) {
-      this.logger.error(`Catalog unavailable: ${describe(error)}`)
-      throw new ServiceUnavailableException('Product catalog is temporarily unavailable')
+      if (error instanceof CatalogUnavailableError) {
+        throw new ServiceUnavailableException('Product catalog is temporarily unavailable')
+      }
+      throw error
     }
 
-    return { products: mergeProducts(catalog, this.loadContent(contentResult)) }
+    return { products: mergeProducts(catalog, await contentPromise) }
   }
 
-  private toCatalog(result: PromiseSettledResult<unknown>): Catalog {
+  private async loadCatalog(raw: Promise<unknown>): Promise<Catalog> {
     try {
-      if (result.status === 'rejected') throw result.reason
-      return mapCatalog(result.value, (message) => this.logger.warn(message))
+      return mapCatalog(await raw, (message) => this.logger.warn(message))
     } catch (error) {
-      throw new CatalogUnavailableError(describe(error))
+      this.logger.error(`Catalog unavailable: ${errorMessage(error)}`)
+      throw new CatalogUnavailableError(errorMessage(error))
     }
   }
 
-  private loadContent(result: PromiseSettledResult<unknown>): Map<string, ProductContent> | null {
+  private async loadContent(raw: Promise<unknown>): Promise<Map<string, ProductContent> | null> {
     try {
-      if (result.status === 'rejected') throw result.reason
-      return mapContent(result.value, (message) => this.logger.warn(message))
+      return mapContent(await raw, (message) => this.logger.warn(message))
     } catch (error) {
-      this.logger.warn(`Content unavailable, serving products without content: ${describe(error)}`)
+      this.logger.warn(
+        `Content unavailable, serving products without content: ${errorMessage(error)}`,
+      )
       return null
     }
   }
 }
 
-function describe(error: unknown): string {
+function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }

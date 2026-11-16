@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { Logger } from '@nestjs/common'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { UpstreamClient } from '../upstream/upstream.client'
 import { failing, loadUpstreamData } from '../testing/upstream-data'
 import { CatalogUnavailableError } from './product.types'
@@ -10,6 +11,8 @@ function serviceWith(getCatalogProducts: () => Promise<unknown>) {
 }
 
 describe('ProductsService.getCatalog', () => {
+  afterEach(() => vi.restoreAllMocks())
+
   it('returns the active catalog items', async () => {
     const catalog = await serviceWith(async () =>
       loadUpstreamData('catalog-products.json'),
@@ -21,8 +24,10 @@ describe('ProductsService.getCatalog', () => {
     ['the upstream call rejects', failing],
     ['the body is not a catalog', async () => ({})],
   ])('throws CatalogUnavailableError when %s', async (_label, getCatalogProducts) => {
+    const error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {})
     await expect(serviceWith(getCatalogProducts).getCatalog()).rejects.toBeInstanceOf(
       CatalogUnavailableError,
     )
+    expect(error).toHaveBeenCalledTimes(1)
   })
 })
