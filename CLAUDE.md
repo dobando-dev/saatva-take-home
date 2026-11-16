@@ -43,7 +43,7 @@ Formatting follows `.prettierrc` (no semicolons, single quotes, trailing commas,
 
 **Request flow.** Browser → Next.js. Client-side calls use relative `/api/*` URLs, which `apps/web/next.config.mjs` rewrites (proxies) to the BFF, so browser requests are same-origin (cookies set by the BFF land on the web origin). Server Components can't use the rewrite; `apps/web/lib/api.ts` calls `API_URL` (default `http://localhost:4000`) directly when `window` is undefined. Server-side fetches must forward the incoming request's cookies explicitly if the BFF needs them.
 
-**Hard constraint:** the web app talks only to the BFF and must not know which upstream a field came from. Upstream field names (`productHandle`, `descriptionHtml`, `reviews`, …) should not leak past the BFF; the BFF owns the response shape.
+**Hard constraint:** the web app talks only to the BFF and must not know which upstream a field came from. Upstream shapes and upstream-only concepts (`productHandle`, `displayName`, `imageKey`, `reviews`, `salePriceCents`, …) must not leak past the BFF; the BFF owns the response shape (see decision D11 in `docs/specs/00-overview.md`).
 
 **BFF.** `UpstreamModule` exports `UpstreamClient` (thin `fetch` wrapper for `/catalog/v1/products` and `/content/v1/products`; throws on non-2xx). `ProductsModule` imports it; `ProductsService.getProducts()` is the stub to implement. New feature modules get registered in `app.module.ts`.
 
@@ -58,7 +58,7 @@ Formatting follows `.prettierrc` (no semicolons, single quotes, trailing commas,
 - Content joins on `handle` ↔ catalog `productHandle`, but casing differs (`"Zenhaven"` vs `"zenhaven"`).
 - Content includes products with no catalog entry (`saatva-youth`).
 - Some `reviews.average` / `reviews.count` values are strings (`"4.0"`, `"1876"`).
-- `descriptionHtml` is declared "trusted HTML authored in the CMS".
+- `descriptionHtml` is declared "trusted HTML authored in the CMS", but the BFF sanitizes it anyway with an allowlist (decision D7); never render it unsanitized.
 - A content API v2 is known to be coming (renamed fields, lowercase slugs, ratings on a 10-point scale). Keep content mapping isolated in one adapter so a version change doesn't ripple into the web app.
 
 ## Working agreements
