@@ -298,9 +298,12 @@ img {
   align-items: start;
 }
 
+/* The mock crops the 1680×640 photos to its 634×349 frame. */
 .configurator__image {
   width: 100%;
   height: auto;
+  aspect-ratio: 634 / 349;
+  object-fit: cover;
 }
 
 .configurator__title {
@@ -330,15 +333,24 @@ img {
   font-size: 1rem;
 }
 
+/* Questrial ships one weight, so emphasis uses the serif face or colour, never faux bold. */
 .configurator__headline {
   margin: 1rem 0 0;
-  font-weight: 700;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.125rem;
 }
 
 .configurator__description {
   margin-top: 0.75rem;
   font-size: 0.9375rem;
   line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.configurator__description strong,
+.configurator__description b {
+  font-weight: 400;
+  color: var(--color-text);
 }
 
 .configurator__description > :first-child {
@@ -428,7 +440,7 @@ img {
   .configurator {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
-    padding: 0 1rem 2rem;
+    padding: 1rem 1rem 2rem;
   }
 
   .configurator__title {
