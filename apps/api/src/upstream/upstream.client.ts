@@ -1,5 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 
+const DEFAULT_TIMEOUT_MS = 2000
+
+function parseTimeoutMs(value: string | undefined): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_TIMEOUT_MS
+}
+
 /**
  * Thin client for the upstream catalog and content services.
  * Returns `unknown` on purpose: `upstream.types.ts` documents what the provider claims,
@@ -9,7 +16,7 @@ import { Injectable, Logger } from '@nestjs/common'
 export class UpstreamClient {
   private readonly logger = new Logger(UpstreamClient.name)
   private readonly baseUrl = process.env.UPSTREAM_URL ?? 'http://localhost:4100'
-  private readonly timeoutMs = Number(process.env.UPSTREAM_TIMEOUT_MS ?? 2000)
+  private readonly timeoutMs = parseTimeoutMs(process.env.UPSTREAM_TIMEOUT_MS)
 
   async getCatalogProducts(): Promise<unknown> {
     return this.get('/catalog/v1/products')

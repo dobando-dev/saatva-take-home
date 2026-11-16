@@ -34,7 +34,7 @@ describe('UpstreamClient', () => {
     const client = clientFor(port, 50)
 
     const started = Date.now()
-    await expect(client.getCatalogProducts()).rejects.toThrow()
+    await expect(client.getCatalogProducts()).rejects.toMatchObject({ name: 'TimeoutError' })
     expect(Date.now() - started).toBeLessThan(1000)
   })
 
@@ -46,7 +46,7 @@ describe('UpstreamClient', () => {
     const client = clientFor(port)
     vi.spyOn(client['logger'], 'warn').mockImplementation(() => undefined)
 
-    await expect(client.getCatalogProducts()).rejects.toThrow()
+    await expect(client.getCatalogProducts()).rejects.toThrow(/503/)
   })
 
   it('returns the parsed JSON body', async () => {
@@ -57,5 +57,17 @@ describe('UpstreamClient', () => {
     const client = clientFor(port)
 
     await expect(client.getContentProducts()).resolves.toEqual({ ok: true })
+  })
+
+  it('falls back to the default timeout when UPSTREAM_TIMEOUT_MS is not a positive number', async () => {
+    const port = await startServer((_req, res) => {
+      res.setHeader('content-type', 'application/json')
+      res.end('{"ok":true}')
+    })
+    vi.stubEnv('UPSTREAM_URL', `http://127.0.0.1:${port}`)
+    vi.stubEnv('UPSTREAM_TIMEOUT_MS', 'abc')
+    const client = new UpstreamClient()
+
+    await expect(client.getCatalogProducts()).resolves.toEqual({ ok: true })
   })
 })

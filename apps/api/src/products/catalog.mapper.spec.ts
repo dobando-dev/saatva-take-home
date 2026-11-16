@@ -91,12 +91,14 @@ describe('mapCatalog', () => {
   it.each(['../secret', 'a.jpg?x'])(
     'Review focus: unsafe imageKey %j drops the product',
     (imageKey) => {
-      const result = mapCatalog(catalogWith(item({ imageKey })), vi.fn())
+      const warn = vi.fn()
+      const result = mapCatalog(catalogWith(item({ imageKey })), warn)
       expect(result.items).toEqual([])
+      expect(warn).toHaveBeenCalled()
     },
   )
 
-  it.each([{}, [], null, { meta: { currency: 'usd' }, data: [] }])(
+  it.each([[{}], [[]], [null], [{ meta: { currency: 'usd' }, data: [] }]])(
     'throws UpstreamDataError when the body is not a catalog (%j)',
     (body) => {
       expect(() => mapCatalog(body)).toThrow(UpstreamDataError)
