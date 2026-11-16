@@ -55,8 +55,9 @@ img {
 
 .site-header__logo {
   color: var(--color-accent);
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   font-size: 2rem;
+  letter-spacing: 0.05em;
   line-height: 1;
   text-decoration: none;
   text-transform: lowercase;
