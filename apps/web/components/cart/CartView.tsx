@@ -1,19 +1,37 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useRef } from 'react'
 import { useCart } from '@/components/cart/CartProvider'
 import { Price } from '@/components/Price'
 import { formatPrice } from '@/lib/format'
 import { MAX_CART_QUANTITY } from '@/lib/types'
 
+const CART_TITLE_ID = 'cart-title'
+
 export function CartView() {
   const { cart, pending, error, setQuantity, remove, refresh } = useCart()
+  const lineCount = cart?.items.length ?? 0
+  const previousLineCount = useRef(lineCount)
+
+  // A removed row takes keyboard focus with it; hand focus to the page heading.
+  useEffect(() => {
+    if (lineCount < previousLineCount.current) {
+      document.getElementById(CART_TITLE_ID)?.focus()
+    }
+    previousLineCount.current = lineCount
+  }, [lineCount])
 
   if (!cart) {
     return (
       <div className="cart__message">
         <p role="alert">We couldn&apos;t load your cart.</p>
-        <button type="button" className="button button--secondary" onClick={() => refresh()}>
+        <button
+          type="button"
+          className="button button--secondary"
+          disabled={pending}
+          onClick={() => refresh()}
+        >
           Try again
         </button>
       </div>

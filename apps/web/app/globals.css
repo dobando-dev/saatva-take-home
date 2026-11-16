@@ -161,6 +161,7 @@ img {
 
 .cart__title {
   margin: 0 0 1.5rem;
+  outline: none;
   font-size: 2.125rem;
   line-height: 1.2;
 }
@@ -469,6 +470,20 @@ img {
 
   .cart-line__total {
     grid-area: total;
+  }
+
+  .button--small {
+    width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .cart-line__quantity {
+    gap: 0.5rem;
+  }
+
+  .cart-line__remove {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
   }
 
   .site-header__inner {

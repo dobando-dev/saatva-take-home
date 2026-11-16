@@ -8,7 +8,9 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <section className="cart">
-      <h1 className="cart__title">Your Cart</h1>
+      <h1 id="cart-title" className="cart__title" tabIndex={-1}>
+        Your Cart
+      </h1>
       <CartView />
     </section>
   )
