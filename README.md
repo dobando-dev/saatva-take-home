@@ -80,7 +80,7 @@ Questions? Reach out anytime. Asking is encouraged, not penalized.
 ```bash
 nvm install && npm install
 npm run dev        # upstream :4100, BFF :4000, web :3000
-npm test           # BFF unit + HTTP tests (Vitest + supertest), 136 tests
+npm test           # BFF unit + HTTP tests (Vitest + supertest), 140 tests
 npm run verify     # Prettier check + typecheck of both apps + tests
 ```
 
@@ -92,6 +92,8 @@ Try the failure modes: `UPSTREAM_FAIL_SERVICE=content npm run dev` (products sti
 - **BFF cart API** (`GET /api/cart`, `POST /api/cart/items`, `PUT|DELETE /api/cart/items/:productId`): the cart lives in an HttpOnly cookie that holds only product IDs and quantities, and every read re-prices from the live catalog.
 - **Configurator** (`/`) per the mock, with an accessible segmented control (radiogroup, arrow keys), sale price with the list price struck through, star rating, and a stacked layout on mobile.
 - **Header count and cart page** (`/cart`): the cart is loaded server-side in the root layout, so the count is right on first paint; quantity, remove, totals, and empty/error states.
+
+The whole cart flow, from adding an item to updating it on the cart page, is drawn step by step in [`docs/specs/03-cart-flow.md`](docs/specs/03-cart-flow.md).
 
 ### Key decisions (full log in [`docs/specs/00-overview.md`](docs/specs/00-overview.md))
 
