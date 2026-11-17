@@ -1,33 +1,41 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { CatalogResponse, ContentResponse } from './upstream.types'
 
-const UPSTREAM_URL = process.env.UPSTREAM_URL ?? 'http://localhost:4100'
+const DEFAULT_TIMEOUT_MS = 2000
+
+function parseTimeoutMs(value: string | undefined): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_TIMEOUT_MS
+}
 
 /**
  * Thin client for the upstream catalog and content services.
- * Already wired up for you. Change it if you think it needs changing.
+ * Returns `unknown` on purpose: `upstream.types.ts` documents what the provider claims,
+ * and the mappers validate what actually arrives.
  */
 @Injectable()
 export class UpstreamClient {
   private readonly logger = new Logger(UpstreamClient.name)
+  private readonly baseUrl = process.env.UPSTREAM_URL ?? 'http://localhost:4100'
+  private readonly timeoutMs = parseTimeoutMs(process.env.UPSTREAM_TIMEOUT_MS)
 
-  async getCatalogProducts(): Promise<CatalogResponse> {
-    return this.get<CatalogResponse>('/catalog/v1/products')
+  async getCatalogProducts(): Promise<unknown> {
+    return this.get('/catalog/v1/products')
   }
 
-  async getContentProducts(): Promise<ContentResponse> {
-    return this.get<ContentResponse>('/content/v1/products')
+  async getContentProducts(): Promise<unknown> {
+    return this.get('/content/v1/products')
   }
 
-  private async get<T>(path: string): Promise<T> {
-    const url = `${UPSTREAM_URL}${path}`
-    const res = await fetch(url)
+  private async get(path: string): Promise<unknown> {
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      signal: AbortSignal.timeout(this.timeoutMs),
+    })
 
     if (!res.ok) {
       this.logger.warn(`GET ${path} -> ${res.status}`)
       throw new Error(`Upstream request failed: ${path} (${res.status})`)
     }
 
-    return (await res.json()) as T
+    return res.json()
   }
 }
